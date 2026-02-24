@@ -88,7 +88,7 @@ class MyApp(ShowBase):
         """Update storm factor and recalculate wave amplitude"""
         self.ocean.storm_factor = self.storm_slider['value']
         self.ocean.swell['amplitude'] = self.ocean.swell_period * self.ocean.storm_factor
-        self.ocean.plane.setShaderInput('swell_amplitude', self.ocean.swell['amplitude'])  # Commented out - using CPU displacement
+        self.ocean.plane.setShaderInput('swell_amplitude', self.ocean.swell['amplitude'])  
         self.storm_label.setText(f"Storm Factor: {self.ocean.storm_factor:.2f}")
     
     def update_boat_heading(self):
@@ -100,7 +100,6 @@ class MyApp(ShowBase):
         """Animate ocean waves by updating geometry and boat position"""
         self.update_boat(task.time)
 
-        #self.ocean.update_ocean_geometry(task.time)
         self.ocean.plane.setShaderInput('wave_time', task.time)
 
         return Task.cont
