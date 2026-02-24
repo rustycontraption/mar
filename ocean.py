@@ -34,7 +34,7 @@ class Ocean():
         
         self.plane.reparentTo(self.render)
         self.plane.setPos(0, 0, 0)
-        self.plane.setRenderModeWireframe() # type: ignore
+        #self.plane.setRenderModeWireframe() # type: ignore
 
         self.shader_inputs = {
             'swell_amplitude': self.swell['amplitude'],

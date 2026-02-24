@@ -45,12 +45,7 @@ vec3 gerstnerWave(vec2 position, float wavelength, float amplitude,
     return vec3(x, y, z);
 }
 
-void main() {
-    vec3 position = p3d_Vertex.xyz;
-    vec3 displacement = vec3(0.0);
-    vec3 chopDisplacement = vec3(0.0);
-
-    // Swell 1 - primary direction (matches ocean.py swell 1)
+vec3 swell_displacement(vec3 position, vec3 displacement) {
     displacement += gerstnerWave(
         position.xy,
         swell_wavelength,
@@ -61,7 +56,6 @@ void main() {
         wave_time
     );
 
-    // Swell 2 - offset direction and parameters (matches ocean.py swell 2)
     displacement += gerstnerWave(
         position.xy,
         swell_wavelength * swell_wavelength_offset,
@@ -72,8 +66,12 @@ void main() {
         wave_time
     );
     
-    chopAmplitude += displacement.z * .1;
-    chopDisplacement += gerstnerWave(
+    return displacement;
+}
+
+vec3 chop_displacement(vec3 position, vec3 displacement) {
+    chopAmplitude = chopAmplitude + swell_amplitude / 16;
+    displacement += gerstnerWave(
         position.xy,
         chopWavelength,
         chopAmplitude,
@@ -83,17 +81,17 @@ void main() {
         wave_time
     );
 
-    chopDisplacement += gerstnerWave(
+    displacement += gerstnerWave(
         position.xy,
         chopWavelength * 1.1,
         chopAmplitude * 1.1,
         chopPeriod * 2,
-        vec2(9.0, -2.0),
+        vec2(5.0, -2.0),
         0.0,
         wave_time
     );
 
-    chopDisplacement += gerstnerWave(
+    displacement += gerstnerWave(
         position.xy,
         chopWavelength * 1.5,
         chopAmplitude * 0.8,
@@ -103,8 +101,8 @@ void main() {
         wave_time
     );
 
-    chopDisplacement += gerstnerWave(
-        position.xy,
+    displacement += gerstnerWave(
+        (position + displacement).xy,
         chopWavelength * 0.9,
         chopAmplitude * 0.5,
         chopPeriod * 1.3,
@@ -112,6 +110,19 @@ void main() {
         0.0,
         wave_time
     );
+
+    return displacement;
+}
+
+void main() {
+    vec3 position = p3d_Vertex.xyz;
+    vec3 displacement = vec3(0.0);
+    vec3 chopDisplacement = vec3(0.0);
+    
+    displacement = swell_displacement(position, displacement);
+    
+    chopDisplacement = chop_displacement(position, chopDisplacement);
+
 
     vec3 finalDisplacement = chopDisplacement + displacement;
     vec3 finalPosition = position + finalDisplacement;
